@@ -37,6 +37,7 @@ build:
     RUN mix compile
 
     COPY config/runtime.exs config/
+    COPY priv/repo/migrations priv/repo/migrations
 
 credo:
     FROM +build --MIX_ENV=test
@@ -52,7 +53,6 @@ test:
     FROM +build --MIX_ENV=test
     RUN apk add --no-progress --update docker docker-compose postgresql-client
     COPY docker-compose.yaml docker-compose.yaml
-    COPY priv/repo/migrations priv/repo/migrations
     WITH DOCKER
         RUN docker-compose up -d & \
             mix deps.compile && \
@@ -89,6 +89,7 @@ image:
     ENV MIX_ENV=${MIX_ENV}
 
     COPY +release/${MIX_ENV}/rel/our_expenses ./
+    COPY priv/repo/migrations priv/repo/migrations
 
     USER nobody
 
