@@ -14,7 +14,7 @@ kill_signal = 'SIGTERM'
   release_command = '/app/bin/migrate'
 
 [env]
-  CHECK_ORIGIN = 'https://our-expenses.fly.dev'
+  PHX_HOST = 'our-expenses.fly.dev' 
   ECTO_IPV6 = 'true'
   ERL_AFLAGS = '-proto_dist inet6_tcp'
 
