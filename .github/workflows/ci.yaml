@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Elixir CI Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: earthly/actions-setup@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "0.7.4"
+      - uses: actions/checkout@v4
+      - name: Static Code Analysis
+        run: earthly +credo
+      - name: Code Format
+        run: earthly +format
+      - name: Unit & Integration Tests
+        run: earthly --allow-privileged +test
+

@@ -1,0 +1,43 @@
+<.header>
+  Listing Bills
+  <:actions>
+    <.link patch={~p"/bills/new"}>
+      <.button>New Bill</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="bills"
+  rows={@streams.bills}
+  row_click={fn {_id, bill} -> JS.navigate(~p"/bills/#{bill}") end}
+>
+  <:col :let={{_id, bill}} label="Name"><%= bill.name %></:col>
+  <:col :let={{_id, bill}} label="Opening date"><%= bill.opening_date %></:col>
+  <:col :let={{_id, bill}} label="Closing date"><%= bill.closing_date %></:col>
+  <:action :let={{_id, bill}}>
+    <div class="sr-only">
+      <.link navigate={~p"/bills/#{bill}"}>Show</.link>
+    </div>
+    <.link patch={~p"/bills/#{bill}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, bill}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: bill.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="bill-modal" show on_cancel={JS.patch(~p"/bills")}>
+  <.live_component
+    module={OurExpensesWeb.BillLive.FormComponent}
+    id={@bill.id || :new}
+    title={@page_title}
+    action={@live_action}
+    bill={@bill}
+    patch={~p"/bills"}
+  />
+</.modal>

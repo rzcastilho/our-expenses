@@ -1,0 +1,32 @@
+# fly.toml app configuration file generated for our-expenses on 2024-06-01T20:58:51-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'our-expenses'
+primary_region = 'gru'
+kill_signal = 'SIGTERM'
+
+[build]
+  image = 'registry.fly.io/our-expenses:latest'
+
+[deploy]
+  release_command = '/app/bin/migrate'
+
+[env]
+  CHECK_ORIGIN = 'https://our-expenses.fly.dev'
+  ECTO_IPV6 = 'true'
+  ERL_AFLAGS = '-proto_dist inet6_tcp'
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

@@ -1,0 +1,36 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+jobs:
+  checks:
+    name: Elixir CD Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: earthly/actions-setup@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "0.7.4"
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Static Code Analysis
+        run: earthly +credo
+      - name: Code Format
+        run: earthly +format
+      - name: Unit & Integration Tests
+        run: earthly --allow-privileged +test
+      - name: Docker Registry Authentication
+        run: flyctl auth docker
+      - name: Push Image
+        run: earthly --push +image --VERSION=${{ github.event.release.tag_name  }}
+      - name: Deploy Application
+        run: flyctl deploy --remote-only
+

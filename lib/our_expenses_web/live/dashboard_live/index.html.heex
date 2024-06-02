@@ -1,0 +1,20 @@
+<.header>
+  Dashboard
+</.header>
+<.budget_balance bill={@bill} budget={@budget} balance={@balance} />
+
+<.table id="dashboard" rows={@balance_grouped_by_category}>
+  <:col :let={{category, _budget, _balance}} label="Category"><%= category %></:col>
+  <:col :let={{_category, budget, _balance}} align="right" label="Budget">
+    <.amount_badge value={budget} color={:blue} />
+  </:col>
+  <:col :let={{_category, _budget, balance}} align="right" label="Consumed">
+    <.amount_badge value={balance} color={:blue} />
+  </:col>
+  <:col :let={{_category, budget, balance}} align="right" label="Balance">
+    <.threshold_badge amount={balance} budget={budget} />
+  </:col>
+  <:col :let={{_category, budget, balance}} align="right" label="Percentage">
+    <%= :erlang.float_to_binary(balance / budget * 100, decimals: 2) %>%
+  </:col>
+</.table>
