@@ -217,6 +217,15 @@ defmodule OurExpenses.Expenses do
     Repo.all(Entry)
   end
 
+  def list_entries_by_bill_and_category(bill_id, category_id) do
+    from(e in Entry)
+    |> where([e], e.bill_id == ^bill_id)
+    |> where([e], e.category_id == ^category_id)
+    |> order_by([e], e.bill_date)
+    |> preload(:owner)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single entry.
 
@@ -406,8 +415,9 @@ defmodule OurExpenses.Expenses do
   def balance_grouped_by_category(%Bill{} = bill) do
     from(c in Category)
     |> join(:left, [c], e in Entry, on: c.id == e.category_id and e.bill_id == ^bill.id)
-    |> group_by([c], [c.name, c.budget])
-    |> select([c, e], {c.name, c.budget, sum(e.amount)})
+    |> group_by([c], [c.id, c.name, c.budget])
+    |> select([c, e], {c.id, c.name, c.budget, sum(e.amount)})
+    |> order_by([c], c.name)
     |> Repo.all()
   end
 

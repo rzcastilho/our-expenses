@@ -763,9 +763,9 @@ defmodule OurExpensesWeb.CoreComponents do
     ]}>
       <%= @symbol %>&nbsp;<p class="whitespace-nowrap text-sm">
         <%= :erlang.float_to_binary(@budget - @amount, decimals: @precision) %>
+        <span class="text-lg"><%= @style.emoji %></span>
       </p>
     </span>
-    <span class="text-lg"><%= @style.emoji %></span>
     """
   end
 
