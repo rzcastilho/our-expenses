@@ -32,7 +32,7 @@ defmodule OurExpensesWeb.EntryLiveTest do
   defp create_entry(_) do
     bill = bill_fixture()
     owner = owner_fixture()
-    category = category_fixture()
+    category = category_fixture(%{bill_id: bill.id})
 
     entry =
       entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
@@ -51,7 +51,8 @@ defmodule OurExpensesWeb.EntryLiveTest do
   end
 
   defp create_category(_) do
-    category = category_fixture()
+    bill = bill_fixture()
+    category = category_fixture(%{bill_id: bill.id})
     %{category: category}
   end
 
@@ -78,14 +79,14 @@ defmodule OurExpensesWeb.EntryLiveTest do
              |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-             |> form("#entry-form",
+             |> form("#entry-form")
+             |> render_submit(
                entry:
                  @create_attrs
                  |> Map.put(:bill_id, bill.id)
                  |> Map.put(:owner_id, owner.id)
                  |> Map.put(:category_id, category.id)
              )
-             |> render_submit()
 
       assert_patch(index_live, ~p"/entries")
 

@@ -6,11 +6,14 @@ defmodule OurExpensesWeb.CategoryLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    bill = Expenses.current_bill() || Expenses.last_bill()
+
     {
       :ok,
       socket
-      |> stream(:categories, Expenses.list_categories())
-      |> assign(:total_budget, Expenses.total_budget() || 0.0)
+      |> stream(:categories, Expenses.list_categories_by_bill(bill.id))
+      |> assign(:total_budget, Expenses.total_budget(bill) || 0.0)
+      |> assign(:bill, bill)
     }
   end
 
@@ -43,7 +46,7 @@ defmodule OurExpensesWeb.CategoryLive.Index do
       :noreply,
       socket
       |> stream_insert(:categories, category)
-      |> assign(:total_budget, Expenses.total_budget() || 0.0)
+      |> assign(:total_budget, Expenses.total_budget(socket.assigns.bill) || 0.0)
     }
   end
 
@@ -56,7 +59,7 @@ defmodule OurExpensesWeb.CategoryLive.Index do
       :noreply,
       socket
       |> stream_delete(:categories, category)
-      |> assign(:total_budget, Expenses.total_budget() || 0.0)
+      |> assign(:total_budget, Expenses.total_budget(socket.assigns.bill) || 0.0)
     }
   end
 end

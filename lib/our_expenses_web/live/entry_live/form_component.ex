@@ -25,6 +25,7 @@ defmodule OurExpensesWeb.EntryLive.FormComponent do
           prompt="Select a bill..."
           options={@bills}
           label="Bill"
+          phx-change="refresh-categories"
         />
         <.input
           field={@form[:owner_id]}
@@ -61,10 +62,29 @@ defmodule OurExpensesWeb.EntryLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
-     |> assign(:bills, bills_selector(Expenses.list_bills()))
-     |> assign(:owners, owners_selector(Expenses.list_owners()))
-     |> assign(:categories, categories_selector(Expenses.list_categories()))
+     |> assign(:bills, bills_selector())
+     |> assign(:owners, owners_selector())
+     |> assign(:categories, categories_selector(entry.bill_id))
      |> assign_form(changeset)}
+  end
+
+  @impl true
+  def handle_event(
+        "refresh-categories",
+        %{"entry" => %{"bill_id" => bill_id} = entry_params},
+        socket
+      ) do
+    changeset =
+      socket.assigns.entry
+      |> Expenses.change_entry(entry_params)
+      |> Map.put(:action, :validate)
+
+    {
+      :noreply,
+      socket
+      |> assign(:categories, categories_selector(bill_id))
+      |> assign_form(changeset)
+    }
   end
 
   @impl true
@@ -117,20 +137,24 @@ defmodule OurExpensesWeb.EntryLive.FormComponent do
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
 
-  defp bills_selector(bills) do
-    for bill <- bills do
+  defp bills_selector() do
+    for bill <- Expenses.list_bills() do
       {bill.name, bill.id}
     end
   end
 
-  defp categories_selector(categories) do
-    for category <- categories do
+  defp categories_selector(bill_id) when bill_id in ["", nil] do
+    []
+  end
+
+  defp categories_selector(bill_id) do
+    for category <- Expenses.list_categories_by_bill(bill_id) do
       {category.name, category.id}
     end
   end
 
-  defp owners_selector(owners) do
-    for owner <- owners do
+  defp owners_selector() do
+    for owner <- Expenses.list_owners() do
       {owner.name, owner.id}
     end
   end

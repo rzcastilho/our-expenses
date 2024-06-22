@@ -8,20 +8,32 @@ defmodule OurExpenses.ExpensesTest do
 
     import OurExpenses.ExpensesFixtures
 
+    defp create_bill(_) do
+      bill = bill_fixture()
+      %{bill: bill}
+    end
+
     @invalid_attrs %{name: nil, description: nil, budget: nil}
 
-    test "list_categories/0 returns all categories" do
-      category = category_fixture()
+    setup [:create_bill]
+
+    test "list_categories/0 returns all categories", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
       assert Expenses.list_categories() == [category]
     end
 
-    test "get_category!/1 returns the category with given id" do
-      category = category_fixture()
+    test "get_category!/1 returns the category with given id", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
       assert Expenses.get_category!(category.id) == category
     end
 
-    test "create_category/1 with valid data creates a category" do
-      valid_attrs = %{name: "some name", description: "some description", budget: 125.23}
+    test "create_category/1 with valid data creates a category", %{bill: bill} do
+      valid_attrs = %{
+        bill_id: bill.id,
+        name: "some name",
+        description: "some description",
+        budget: 125.23
+      }
 
       assert {:ok, %Category{} = category} = Expenses.create_category(valid_attrs)
       assert category.name == "some name"
@@ -33,8 +45,8 @@ defmodule OurExpenses.ExpensesTest do
       assert {:error, %Ecto.Changeset{}} = Expenses.create_category(@invalid_attrs)
     end
 
-    test "update_category/2 with valid data updates the category" do
-      category = category_fixture()
+    test "update_category/2 with valid data updates the category", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
 
       update_attrs = %{
         name: "some updated name",
@@ -48,20 +60,20 @@ defmodule OurExpenses.ExpensesTest do
       assert category.budget == 245.2
     end
 
-    test "update_category/2 with invalid data returns error changeset" do
-      category = category_fixture()
+    test "update_category/2 with invalid data returns error changeset", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
       assert {:error, %Ecto.Changeset{}} = Expenses.update_category(category, @invalid_attrs)
       assert category == Expenses.get_category!(category.id)
     end
 
-    test "delete_category/1 deletes the category" do
-      category = category_fixture()
+    test "delete_category/1 deletes the category", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
       assert {:ok, %Category{}} = Expenses.delete_category(category)
       assert_raise Ecto.NoResultsError, fn -> Expenses.get_category!(category.id) end
     end
 
-    test "change_category/1 returns a category changeset" do
-      category = category_fixture()
+    test "change_category/1 returns a category changeset", %{bill: bill} do
+      category = category_fixture(%{bill_id: bill.id})
       assert %Ecto.Changeset{} = Expenses.change_category(category)
     end
   end
@@ -125,18 +137,14 @@ defmodule OurExpenses.ExpensesTest do
 
     import OurExpenses.ExpensesFixtures
 
-    defp create_bill(_) do
-      bill = bill_fixture()
-      %{bill: bill}
-    end
-
     defp create_owner(_) do
       owner = owner_fixture()
       %{owner: owner}
     end
 
     defp create_category(_) do
-      category = category_fixture()
+      bill = bill_fixture()
+      category = category_fixture(%{bill_id: bill.id})
       %{category: category}
     end
 
@@ -227,7 +235,7 @@ defmodule OurExpenses.ExpensesTest do
     test "update_entry/2 with invalid data returns error changeset" do
       bill = bill_fixture()
       owner = owner_fixture()
-      category = category_fixture()
+      category = category_fixture(%{bill_id: bill.id})
       entry = entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
       assert {:error, %Ecto.Changeset{}} = Expenses.update_entry(entry, @invalid_attrs)
       assert entry == Expenses.get_entry!(entry.id)

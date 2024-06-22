@@ -13,12 +13,18 @@ defmodule OurExpensesWeb.CategoryLiveTest do
   @invalid_attrs %{name: nil, description: nil, budget: nil}
 
   defp create_category(_) do
-    category = category_fixture()
+    bill = bill_fixture()
+    category = category_fixture(%{bill_id: bill.id})
     %{category: category}
   end
 
+  defp create_bill(_) do
+    bill = bill_fixture()
+    %{bill: bill}
+  end
+
   describe "Index" do
-    setup [:create_category]
+    setup [:create_category, :create_bill]
 
     test "lists all categories", %{conn: conn, category: category} do
       {:ok, _index_live, html} = live(conn, ~p"/categories")
@@ -27,7 +33,7 @@ defmodule OurExpensesWeb.CategoryLiveTest do
       assert html =~ category.name
     end
 
-    test "saves new category", %{conn: conn} do
+    test "saves new category", %{conn: conn, bill: bill} do
       {:ok, index_live, _html} = live(conn, ~p"/categories")
 
       assert index_live |> element("a", "New Category") |> render_click() =~
@@ -40,7 +46,7 @@ defmodule OurExpensesWeb.CategoryLiveTest do
              |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-             |> form("#category-form", category: @create_attrs)
+             |> form("#category-form", category: Map.put(@create_attrs, :bill_id, bill.id))
              |> render_submit()
 
       assert_patch(index_live, ~p"/categories")

@@ -21,6 +21,12 @@ defmodule OurExpenses.Expenses do
     Repo.all(Category)
   end
 
+  def list_categories_by_bill(bill_id) do
+    from(c in Category)
+    |> where([c], c.bill_id == ^bill_id)
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single category.
 
@@ -102,8 +108,11 @@ defmodule OurExpenses.Expenses do
     Category.changeset(category, attrs)
   end
 
-  def total_budget() do
-    Repo.one(from c in Category, select: sum(c.budget))
+  def total_budget(%OurExpenses.Expenses.Bill{} = bill) do
+    from(c in Category)
+    |> where([c], c.bill_id == ^bill.id)
+    |> select([c], sum(c.budget))
+    |> Repo.one()
   end
 
   alias OurExpenses.Expenses.Owner
@@ -409,6 +418,13 @@ defmodule OurExpenses.Expenses do
     Bill
     |> where([b], b.opening_date <= ^now)
     |> where([b], b.closing_date >= ^now)
+    |> Repo.one()
+  end
+
+  def last_bill() do
+    from(b in Bill)
+    |> order_by([b], desc: b.closing_date)
+    |> limit(1)
     |> Repo.one()
   end
 

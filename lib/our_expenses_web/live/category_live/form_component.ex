@@ -19,6 +19,13 @@ defmodule OurExpensesWeb.CategoryLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
+        <.input
+          field={@form[:bill_id]}
+          type="select"
+          prompt="Select a bill..."
+          options={@bills}
+          label="Bill"
+        />
         <.input field={@form[:name]} type="text" label="Name" />
         <.input field={@form[:description]} type="text" label="Description" />
         <.input field={@form[:budget]} type="number" label="Budget" step="any" />
@@ -37,6 +44,7 @@ defmodule OurExpensesWeb.CategoryLive.FormComponent do
     {:ok,
      socket
      |> assign(assigns)
+     |> assign(:bills, bills_selector(Expenses.list_bills()))
      |> assign_form(changeset)}
   end
 
@@ -89,4 +97,10 @@ defmodule OurExpensesWeb.CategoryLive.FormComponent do
   end
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
+
+  defp bills_selector(bills) do
+    for bill <- bills do
+      {bill.name, bill.id}
+    end
+  end
 end

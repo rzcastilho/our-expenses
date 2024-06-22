@@ -4,13 +4,17 @@ defmodule OurExpenses.Expenses.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias OurExpenses.Expenses.Entry
+  alias OurExpenses.Expenses.{
+    Bill,
+    Entry
+  }
 
   schema "categories" do
     field :name, :string
     field :description, :string
     field :budget, :float
 
+    belongs_to :bill, Bill
     has_many :entries, Entry
 
     timestamps(type: :utc_datetime)
@@ -19,7 +23,8 @@ defmodule OurExpenses.Expenses.Category do
   @doc false
   def changeset(category, attrs) do
     category
-    |> cast(attrs, [:name, :description, :budget])
-    |> validate_required([:name, :description, :budget])
+    |> cast(attrs, [:bill_id, :name, :description, :budget])
+    |> validate_required([:bill_id, :name, :description, :budget])
+    |> foreign_key_constraint(:bill_id)
   end
 end
