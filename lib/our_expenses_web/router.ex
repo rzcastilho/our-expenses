@@ -48,6 +48,7 @@ defmodule OurExpensesWeb.Router do
     live "/entries/:id/show/edit", EntryLive.Show, :edit
 
     live "/dashboard", DashboardLive.Index, :index
+    live "/dashboard/bill/:bill_id", DashboardLive.Index, :index
     live "/dashboard/bill/:bill_id/category/:category_id/details", DashboardLive.Index, :details
   end
 

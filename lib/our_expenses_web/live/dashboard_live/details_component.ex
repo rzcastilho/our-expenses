@@ -14,7 +14,15 @@ defmodule OurExpensesWeb.DashboardLive.DetailsComponent do
       <.table id="details" rows={@streams.entries}>
         <:col :let={{_id, entry}} label="Date"><%= entry.bill_date %></:col>
         <:col :let={{_id, entry}} label="Owner"><%= entry.owner.name %></:col>
-        <:col :let={{_id, entry}} label="Description"><%= entry.description %></:col>
+        <:col :let={{_id, entry}} label="Description">
+          <%= entry.description %>
+          <.badge
+            :if={entry.number_of_installments > 1}
+            label={"#{entry.installment}/#{entry.number_of_installments}"}
+            color={:yellow}
+          />
+          <.badge :if={entry.recurring == true} label="recurring" color={:red} />
+        </:col>
         <:col :let={{_id, entry}} label="Amount">
           $ <%= :erlang.float_to_binary(entry.amount, decimals: 2) %>
         </:col>
@@ -29,6 +37,7 @@ defmodule OurExpensesWeb.DashboardLive.DetailsComponent do
       :ok,
       socket
       |> assign(:category, category)
+      |> assign(:bill, bill)
       |> stream(:entries, Expenses.list_entries_by_bill_and_category(bill.id, category.id))
     }
   end

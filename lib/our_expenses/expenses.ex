@@ -445,6 +445,34 @@ defmodule OurExpenses.Expenses do
     |> Repo.one()
   end
 
+  def bill_status(%{opening_date: opening, closing_date: closing}) do
+    if Timex.between?(Timex.today(), opening, closing, inclusive: true) do
+      "open"
+    else
+      "closed"
+    end
+  end
+
+  def get_bill_by_date(date) do
+    from(b in Bill)
+    |> where([b], b.opening_date <= ^date)
+    |> where([b], b.closing_date >= ^date)
+    |> Repo.one()
+  end
+
+  def next_and_previous_bills(%{opening_date: opening, closing_date: closing}) do
+    %{
+      previous:
+        opening
+        |> Date.add(-5)
+        |> get_bill_by_date(),
+      next:
+        closing
+        |> Date.add(5)
+        |> get_bill_by_date()
+    }
+  end
+
   def copy_categories(bill_from, bill_to) do
     bill_from
     |> list_categories_by_bill()

@@ -695,6 +695,34 @@ defmodule OurExpensesWeb.CoreComponents do
 
   ## Examples
 
+      <.badge label={@amount}/>
+      <.badge label={budget} color={:blue}/>
+  """
+  attr :label, :string, required: true
+  attr :color, :atom, values: [:blue, :green, :yellow, :red, :orange], default: :orange
+
+  def badge(assigns) do
+    ~H"""
+    <span class={[
+      "inline-flex items-center justify-center rounded-full px-2.5 py-0.5",
+      @color == :blue && "bg-blue-100 text-blue-700",
+      @color == :green && "bg-green-100 text-green-700",
+      @color == :yellow && "bg-yellow-100 text-yellow-700",
+      @color == :orange && "bg-orange-100 text-orange-700",
+      @color == :red && "bg-red-100 text-red-700"
+    ]}>
+      <p class="whitespace-nowrap text-sm">
+        <%= @label %>
+      </p>
+    </span>
+    """
+  end
+
+  @doc """
+  Renders a...
+
+  ## Examples
+
       <.amount_badge value={@amount}/>
       <.amount_badge value={2000.0} symbol="R$"/>
       <.amount_badge value={budget} color={:blue}/>
@@ -741,10 +769,10 @@ defmodule OurExpensesWeb.CoreComponents do
         value when value > 1.0 ->
           %{color: :red, emoji: "😵"}
 
-        value when value > 0.7 ->
+        value when value > 0.8 ->
           %{color: :orange, emoji: "🙁"}
 
-        value when value > 0.5 ->
+        value when value > 0.6 ->
           %{color: :yellow, emoji: "😐"}
 
         _ ->
@@ -770,13 +798,21 @@ defmodule OurExpensesWeb.CoreComponents do
   end
 
   attr :bill, :any, required: true
+  attr :status, :string, required: true, values: ["open", "closed"]
   attr :budget, :float, required: true
   attr :balance, :float, required: true
   attr :precision, :integer, default: 2
 
   def budget_balance(assigns) do
     ~H"""
-    <article class="flex flex-col gap-4 rounded-lg border border-gray-100 bg-white p-6">
+    <article
+      class={[
+        "flex flex-col gap-4 rounded-lg border border-gray-100 p-6",
+        @status == "open" && "bg-green-400",
+        @status == "closed" && "bg-red-400"
+      ]}
+      class=""
+    >
       <p class="absolute text-xl">
         <%= @bill.name %><br />
         <span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">

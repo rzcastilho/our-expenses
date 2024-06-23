@@ -6,16 +6,7 @@ defmodule OurExpensesWeb.DashboardLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    bill = Expenses.current_bill() || Expenses.last_bill()
-
-    {
-      :ok,
-      socket
-      |> assign(:bill, bill)
-      |> assign(:budget, Expenses.total_budget(bill))
-      |> assign(:balance, Expenses.total_balance(bill))
-      |> assign(:balance_grouped_by_category, Expenses.balance_grouped_by_category(bill))
-    }
+    {:ok, socket}
   end
 
   @impl true
@@ -30,5 +21,22 @@ defmodule OurExpensesWeb.DashboardLive.Index do
     end
   end
 
-  defp apply_action(socket, :index, _params), do: socket
+  defp apply_action(socket, :index, params) do
+    bill =
+      case params do
+        %{"bill_id" => bill_id} ->
+          Expenses.get_bill!(bill_id)
+
+        _ ->
+          Expenses.current_bill() || Expenses.last_bill()
+      end
+
+    socket
+    |> assign(:bill, bill)
+    |> assign(:nav, Expenses.next_and_previous_bills(bill))
+    |> assign(:status, Expenses.bill_status(bill))
+    |> assign(:budget, Expenses.total_budget(bill))
+    |> assign(:balance, Expenses.total_balance(bill))
+    |> assign(:balance_grouped_by_category, Expenses.balance_grouped_by_category(bill))
+  end
 end

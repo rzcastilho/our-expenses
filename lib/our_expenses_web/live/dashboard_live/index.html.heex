@@ -1,7 +1,18 @@
-<.header>
-  Dashboard
-</.header>
-<.budget_balance bill={@bill} budget={@budget} balance={@balance} />
+<div class="flex flex-row justify-between">
+  <.header>
+    Dashboard
+  </.header>
+  <div>
+    <.link :if={@nav.previous != nil} patch={~p"/dashboard/bill/#{@nav.previous.id}"}>
+      <.icon name="hero-arrow-left" class="h-5 w-5" />
+    </.link>
+    <.link :if={@nav.next != nil} patch={~p"/dashboard/bill/#{@nav.next.id}"}>
+      <.icon name="hero-arrow-right" class="h-5 w-5" />
+    </.link>
+  </div>
+</div>
+
+<.budget_balance bill={@bill} status={@status} budget={@budget} balance={@balance} />
 
 <.table id="dashboard" rows={@balance_grouped_by_category}>
   <:col :let={{_id, category, _budget, _balance}} label="Category"><%= category %></:col>
@@ -28,13 +39,12 @@
   :if={@live_action == :details}
   id="details-modal"
   show
-  on_cancel={JS.patch(~p"/dashboard")}
+  on_cancel={JS.patch(~p"/dashboard/bill/#{@bill.id}")}
 >
   <.live_component
     module={OurExpensesWeb.DashboardLive.DetailsComponent}
     id={@category.id}
     category={@category}
     bill={@bill}
-    patch={~p"/dashboard"}
   />
 </.modal>
