@@ -14,8 +14,8 @@ defmodule OurExpenses.Expenses.Entry do
     field :description, :string
     field :bill_date, :date
     field :amount, :float
-    field :number_of_installments, :integer
-    field :installment, :integer
+    field :number_of_installments, :integer, default: 1
+    field :installment, :integer, default: 1
     field :recurring, :boolean, default: false
 
     belongs_to :owner, Owner

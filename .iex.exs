@@ -1,4 +1,7 @@
-alias OurExpenses.Expenses
+alias OurExpenses.{
+  Expenses,
+  Repo
+}
 
 alias OurExpenses.Expenses.{
   Bill,
@@ -6,3 +9,5 @@ alias OurExpenses.Expenses.{
   Owner,
   Entry
 }
+
+import Ecto.Query

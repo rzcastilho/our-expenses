@@ -430,9 +430,10 @@ defmodule OurExpenses.Expenses do
 
   def balance_grouped_by_category(%Bill{} = bill) do
     from(c in Category)
-    |> join(:left, [c], e in Entry, on: c.id == e.category_id and e.bill_id == ^bill.id)
+    |> where([c], c.bill_id == ^bill.id)
+    |> join(:left, [c], e in Entry, on: c.id == e.category_id and c.bill_id == e.bill_id)
     |> group_by([c], [c.id, c.name, c.budget])
-    |> select([c, e], {c.id, c.name, c.budget, sum(e.amount)})
+    |> select([c, e], {c.id, c.name, c.budget, coalesce(sum(e.amount), 0)})
     |> order_by([c], c.name)
     |> Repo.all()
   end
@@ -440,7 +441,78 @@ defmodule OurExpenses.Expenses do
   def total_balance(%Bill{} = bill) do
     from(e in Entry)
     |> where([e], e.bill_id == ^bill.id)
-    |> select([e], sum(e.amount))
+    |> select([e], coalesce(sum(e.amount), 0))
     |> Repo.one()
+  end
+
+  def copy_categories(bill_from, bill_to) do
+    bill_from
+    |> list_categories_by_bill()
+    |> Enum.map(&Map.from_struct/1)
+    |> Enum.map(fn map ->
+      [:id, :bill, :inserted_at, :updated_at, :entries, :__meta__]
+      |> Enum.reduce(map, fn key, acc -> Map.delete(acc, key) end)
+    end)
+    |> Enum.map(&Map.put(&1, :bill_id, bill_to))
+    |> Enum.map(&change_category(%Category{}, &1))
+    |> Enum.map(&Repo.insert!/1)
+  end
+
+  def get_category_by_bill_and_name(bill_id, name) do
+    from(c in Category)
+    |> where([c], c.bill_id == ^bill_id)
+    |> where([c], c.name == ^name)
+    |> select([c], c.id)
+    |> Repo.one()
+  end
+
+  def copy_installments(bill_from, bill_to) do
+    from(e in Entry)
+    |> where([e], e.bill_id == ^bill_from)
+    |> where([e], e.number_of_installments > 1)
+    |> where([e], e.number_of_installments != e.installment)
+    |> preload(:category)
+    |> Repo.all()
+    |> Enum.map(&Map.from_struct/1)
+    |> Enum.map(fn %{category: %{name: name}} = map -> Map.put(map, :category_name, name) end)
+    |> Enum.map(fn map ->
+      [:id, :bill, :owner, :category, :inserted_at, :updated_at, :__meta__]
+      |> Enum.reduce(map, fn key, acc -> Map.delete(acc, key) end)
+    end)
+    |> Enum.map(&Map.put(&1, :bill_id, bill_to))
+    |> Enum.map(&Map.put(&1, :bill_date, Timex.shift(&1.bill_date, months: 1)))
+    |> Enum.map(fn %{category_name: name} = map ->
+      case get_category_by_bill_and_name(bill_to, name) do
+        nil -> map |> Map.delete(:category_id) |> Map.delete(:category_name)
+        id -> map |> Map.put(:category_id, id) |> Map.delete(:category_name)
+      end
+    end)
+    |> Enum.map(&Map.put(&1, :installment, &1.installment + 1))
+    |> Enum.map(&change_entry(%Entry{}, &1))
+    |> Enum.map(&Repo.insert!/1)
+  end
+
+  def copy_recurring(bill_from, bill_to) do
+    from(e in Entry)
+    |> where([e], e.bill_id == ^bill_from)
+    |> where([e], e.recurring == true)
+    |> preload(:category)
+    |> Repo.all()
+    |> Enum.map(&Map.from_struct/1)
+    |> Enum.map(fn %{category: %{name: name}} = map -> Map.put(map, :category_name, name) end)
+    |> Enum.map(fn map ->
+      [:id, :bill, :category, :owner, :inserted_at, :updated_at, :__meta__]
+      |> Enum.reduce(map, fn key, acc -> Map.delete(acc, key) end)
+    end)
+    |> Enum.map(&Map.put(&1, :bill_id, bill_to))
+    |> Enum.map(&Map.put(&1, :bill_date, Timex.shift(&1.bill_date, months: 1)))
+    |> Enum.map(fn %{category_name: name} = map ->
+      case get_category_by_bill_and_name(bill_to, name) do
+        nil -> map |> Map.delete(:category_id) |> Map.delete(:category_name)
+        id -> map |> Map.put(:category_id, id) |> Map.delete(:category_name)
+      end
+    end)
+    |> Enum.map(&change_entry(%Entry{}, &1))
+    |> Enum.map(&Repo.insert!/1)
   end
 end

@@ -4,7 +4,7 @@ defmodule OurExpenses.MixProject do
   def project do
     [
       app: :our_expenses,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -58,7 +58,8 @@ defmodule OurExpenses.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.2"},
-      {:credo, "~> 1.7", only: [:test, :dev], runtime: false}
+      {:credo, "~> 1.7", only: [:test, :dev], runtime: false},
+      {:timex, "~> 3.7"}
     ]
   end
 
