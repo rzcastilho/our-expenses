@@ -12,12 +12,7 @@
   </div>
 </div>
 
-<.budget_balance
-  bill={@bill}
-  status={@status}
-  budget={@budget}
-  balance={@balance}
-/>
+<.budget_balance bill={@bill} status={@status} budget={@budget} balance={@balance} />
 
 <div class="flex justify-around p-2">
   <.amount_badge value={@installments} symbol="Installments $" color={:yellow} precision={2} />
