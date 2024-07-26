@@ -56,15 +56,27 @@ defmodule OurExpensesWeb.EntryLive.FormComponent do
   end
 
   @impl true
-  def update(%{entry: entry} = assigns, socket) do
-    changeset = Expenses.change_entry(entry)
+  def update(%{entry: %{bill_id: bill_id} = entry} = assigns, socket) do
+    bill_id =
+      case bill_id do
+        nil ->
+          case Expenses.current_bill() do
+            %{id: id} -> id
+            nil -> nil
+          end
+
+        id ->
+          id
+      end
+
+    changeset = Expenses.change_entry(entry, %{bill_id: bill_id})
 
     {:ok,
      socket
      |> assign(assigns)
      |> assign(:bills, bills_selector())
      |> assign(:owners, owners_selector())
-     |> assign(:categories, categories_selector(entry.bill_id))
+     |> assign(:categories, categories_selector(bill_id))
      |> assign_form(changeset)}
   end
 

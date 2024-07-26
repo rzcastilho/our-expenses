@@ -37,6 +37,8 @@ defmodule OurExpensesWeb.DashboardLive.Index do
     |> assign(:status, Expenses.bill_status(bill))
     |> assign(:budget, Expenses.total_budget(bill))
     |> assign(:balance, Expenses.total_balance(bill))
+    |> assign(:installments, Expenses.total_installments(bill))
+    |> assign(:recurring, Expenses.total_recurring(bill))
     |> assign(:balance_grouped_by_category, Expenses.balance_grouped_by_category(bill))
   end
 end
