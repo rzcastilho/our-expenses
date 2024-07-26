@@ -12,7 +12,17 @@
   </div>
 </div>
 
-<.budget_balance bill={@bill} status={@status} budget={@budget} balance={@balance} />
+<.budget_balance
+  bill={@bill}
+  status={@status}
+  budget={@budget}
+  balance={@balance}
+/>
+
+<div class="flex justify-around p-2">
+  <.amount_badge value={@installments} symbol="Installments $" color={:yellow} precision={2} />
+  <.amount_badge value={@recurring} symbol="Recurring $" color={:red} precision={2} />
+</div>
 
 <.table id="dashboard" rows={@balance_grouped_by_category}>
   <:col :let={{_id, category, _budget, _balance}} label="Category"><%= category %></:col>
