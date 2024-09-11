@@ -30,7 +30,7 @@ if config_env() == :prod do
 
   config :our_expenses, OurExpenses.Repo,
     # ssl: true,
-    url: database_url,
+    database: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
