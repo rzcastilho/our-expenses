@@ -29,7 +29,7 @@ kill_signal = 'SIGTERM'
 [mounts]
   source = "our-expenses-data"
   destination = "/data"
-  initial_size = "512mb"
+  initial_size = "1gb"
 
 [[vm]]
   memory = '1gb'
