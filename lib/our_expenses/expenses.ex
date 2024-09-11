@@ -111,7 +111,7 @@ defmodule OurExpenses.Expenses do
   def total_budget(%OurExpenses.Expenses.Bill{} = bill) do
     from(c in Category)
     |> where([c], c.bill_id == ^bill.id)
-    |> select([c], sum(c.budget))
+    |> select([c], type(coalesce(sum(c.budget), 0.0), :float))
     |> Repo.one()
   end
 

@@ -35,3 +35,5 @@ our_expenses-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Ignore dev database
+our_expenses_dev.db*

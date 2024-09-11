@@ -12,7 +12,7 @@ defmodule OurExpensesWeb.CategoryLive.Index do
       :ok,
       socket
       |> stream(:categories, Expenses.list_categories_by_bill(bill.id))
-      |> assign(:total_budget, Expenses.total_budget(bill) || 0.0)
+      |> assign(:total_budget, Expenses.total_budget(bill))
       |> assign(:bill, bill)
     }
   end

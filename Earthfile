@@ -51,14 +51,8 @@ format:
 
 test:
     FROM +build --MIX_ENV=test
-    RUN apk add --no-progress --update docker docker-compose postgresql-client
-    COPY docker-compose.yaml docker-compose.yaml
-    WITH DOCKER
-        RUN docker-compose up -d & \
-            mix deps.compile && \
-            while ! pg_isready --host=localhost --port=5432 --quiet; do sleep 1; done; \
-            mix test
-    END
+    RUN mix deps.compile \
+        && mix test
 
 release:
     FROM +build
