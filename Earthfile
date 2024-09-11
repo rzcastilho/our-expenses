@@ -68,7 +68,7 @@ image:
 
     RUN apk update \
         && apk upgrade \
-        && apk add libstdc++ openssl ncurses tzdata
+        && apk add libstdc++ openssl ncurses tzdata sqlite
 
     RUN cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
 
@@ -79,13 +79,12 @@ image:
 
     WORKDIR "/app"
     RUN chown nobody /app
+    USER nobody
 
     ENV MIX_ENV=${MIX_ENV}
 
     COPY +release/${MIX_ENV}/rel/our_expenses ./
     COPY priv/repo/migrations priv/repo/migrations
-
-    USER nobody
 
     CMD ["/app/bin/server"]
     SAVE IMAGE --push registry.fly.io/our-expenses:latest registry.fly.io/our-expenses:${VERSION}
