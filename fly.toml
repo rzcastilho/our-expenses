@@ -27,7 +27,7 @@ kill_signal = 'SIGTERM'
   processes = ['app']
 
 [mounts]
-  source = "our-expenses-data"
+  source = "our_expenses_data"
   destination = "/data"
   initial_size = "1gb"
 
