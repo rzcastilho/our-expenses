@@ -433,7 +433,7 @@ defmodule OurExpenses.Expenses do
     |> where([c], c.bill_id == ^bill.id)
     |> join(:left, [c], e in Entry, on: c.id == e.category_id and c.bill_id == e.bill_id)
     |> group_by([c], [c.id, c.name, c.budget])
-    |> select([c, e], {c.id, c.name, c.budget, coalesce(sum(e.amount), 0)})
+    |> select([c, e], {c.id, c.name, c.budget, type(coalesce(sum(e.amount), 0.0), :float)})
     |> order_by([c], c.name)
     |> Repo.all()
   end
