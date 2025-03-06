@@ -162,6 +162,7 @@ defmodule OurExpenses.ExpensesTest do
     test "list_entries/0 returns all entries", %{bill: bill, owner: owner, category: category} do
       entry =
         entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
+        |> Ecto.reset_fields([:owner])
 
       assert Expenses.list_entries() == [entry]
     end
@@ -173,6 +174,7 @@ defmodule OurExpenses.ExpensesTest do
     } do
       entry =
         entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
+        |> Ecto.reset_fields([:owner])
 
       assert Expenses.get_entry!(entry.id) == entry
     end
@@ -236,7 +238,11 @@ defmodule OurExpenses.ExpensesTest do
       bill = bill_fixture()
       owner = owner_fixture()
       category = category_fixture(%{bill_id: bill.id})
-      entry = entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
+
+      entry =
+        entry_fixture(%{bill_id: bill.id, owner_id: owner.id, category_id: category.id})
+        |> Ecto.reset_fields([:owner])
+
       assert {:error, %Ecto.Changeset{}} = Expenses.update_entry(entry, @invalid_attrs)
       assert entry == Expenses.get_entry!(entry.id)
     end

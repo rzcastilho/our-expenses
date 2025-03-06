@@ -457,21 +457,21 @@ defmodule OurExpenses.Expenses do
   def total_balance(%Bill{} = bill) do
     from(e in Entry)
     |> where([e], e.bill_id == ^bill.id)
-    |> select([e], coalesce(sum(e.amount), 0))
+    |> select([e], coalesce(sum(e.amount), 0.0))
     |> Repo.one()
   end
 
   def total_installments(%Bill{} = bill) do
     from(e in Entry)
     |> where([e], e.bill_id == ^bill.id and e.number_of_installments > 1)
-    |> select([e], coalesce(sum(e.amount), 0))
+    |> select([e], coalesce(sum(e.amount), 0.0))
     |> Repo.one()
   end
 
   def total_recurring(%Bill{} = bill) do
     from(e in Entry)
     |> where([e], e.bill_id == ^bill.id and e.recurring == true)
-    |> select([e], coalesce(sum(e.amount), 0))
+    |> select([e], coalesce(sum(e.amount), 0.0))
     |> Repo.one()
   end
 
