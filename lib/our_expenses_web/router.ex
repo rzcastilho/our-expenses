@@ -17,7 +17,7 @@ defmodule OurExpensesWeb.Router do
   scope "/", OurExpensesWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", RedirectController, :to
 
     live "/categories", CategoryLive.Index, :index
     live "/categories/new", CategoryLive.Index, :new
@@ -41,6 +41,7 @@ defmodule OurExpensesWeb.Router do
     live "/bills/:id/show/edit", BillLive.Show, :edit
 
     live "/entries", EntryLive.Index, :index
+    live "/entries/bill/:bill_id", EntryLive.Index, :index
     live "/entries/new", EntryLive.Index, :new
     live "/entries/:id/edit", EntryLive.Index, :edit
 

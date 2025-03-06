@@ -226,6 +226,14 @@ defmodule OurExpenses.Expenses do
     Repo.all(Entry)
   end
 
+  def list_entries_by_bill(bill_id) do
+    from(e in Entry)
+    |> where([e], e.bill_id == ^bill_id)
+    |> order_by([e], {:desc, e.updated_at})
+    |> preload(:owner)
+    |> Repo.all()
+  end
+
   def list_entries_by_bill_and_category(bill_id, category_id) do
     from(e in Entry)
     |> where([e], e.bill_id == ^bill_id)
@@ -267,6 +275,10 @@ defmodule OurExpenses.Expenses do
     %Entry{}
     |> Entry.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, entry} -> {:ok, Repo.preload(entry, :owner)}
+      error -> error
+    end
   end
 
   @doc """
@@ -285,6 +297,10 @@ defmodule OurExpenses.Expenses do
     entry
     |> Entry.changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, entry} -> {:ok, Repo.preload(entry, :owner)}
+      error -> error
+    end
   end
 
   @doc """

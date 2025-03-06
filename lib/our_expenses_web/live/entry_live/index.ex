@@ -6,7 +6,7 @@ defmodule OurExpensesWeb.EntryLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :entries, Expenses.list_entries())}
+    {:ok, socket}
   end
 
   @impl true
@@ -26,22 +26,47 @@ defmodule OurExpensesWeb.EntryLive.Index do
     |> assign(:entry, %Entry{})
   end
 
-  defp apply_action(socket, :index, _params) do
+  defp apply_action(socket, :index, params) do
+    bill =
+      case params do
+        %{"bill_id" => bill_id} ->
+          Expenses.get_bill!(bill_id)
+
+        _ ->
+          Expenses.current_bill() || Expenses.last_bill()
+      end
+
     socket
     |> assign(:page_title, "Listing Entries")
     |> assign(:entry, nil)
+    |> stream(:entries, Expenses.list_entries_by_bill(bill.id))
+    |> assign(:balance, Expenses.total_balance(bill))
+    |> assign(:bill, bill)
   end
 
   @impl true
-  def handle_info({OurExpensesWeb.EntryLive.FormComponent, {:saved, entry}}, socket) do
-    {:noreply, stream_insert(socket, :entries, entry)}
+  def handle_info(
+        {OurExpensesWeb.EntryLive.FormComponent, {:saved, entry}},
+        %{assigns: %{bill: bill}} = socket
+      ) do
+    {
+      :noreply,
+      socket
+      |> stream_insert(:entries, entry, at: 0)
+      |> assign(:balance, Expenses.total_balance(bill))
+    }
   end
 
   @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
+  def handle_event("delete", %{"id" => id}, %{assigns: %{bill: bill}} = socket) do
     entry = Expenses.get_entry!(id)
     {:ok, _} = Expenses.delete_entry(entry)
 
-    {:noreply, stream_delete(socket, :entries, entry)}
+    {
+      :noreply,
+      socket
+      |> stream_delete(:entries, entry)
+      |> assign(:balance, Expenses.total_balance(bill))
+    }
   end
 end

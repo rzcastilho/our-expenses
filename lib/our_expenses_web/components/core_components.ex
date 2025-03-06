@@ -765,18 +765,22 @@ defmodule OurExpensesWeb.CoreComponents do
 
   def threshold_badge(assigns) do
     style =
-      case assigns.amount / assigns.budget do
-        value when value > 1.0 ->
-          %{color: :red, emoji: "😵"}
+      if assigns.budget == 0.0 do
+        %{color: :slate, emoji: "☠️"}
+      else
+        case assigns.amount / assigns.budget do
+          value when value > 1.0 ->
+            %{color: :red, emoji: "😵"}
 
-        value when value > 0.8 ->
-          %{color: :orange, emoji: "🙁"}
+          value when value > 0.8 ->
+            %{color: :orange, emoji: "🙁"}
 
-        value when value > 0.6 ->
-          %{color: :yellow, emoji: "😐"}
+          value when value > 0.6 ->
+            %{color: :yellow, emoji: "😐"}
 
-        _ ->
-          %{color: :green, emoji: "🙂"}
+          _ ->
+            %{color: :green, emoji: "🙂"}
+        end
       end
 
     assigns = assign(assigns, :style, style)
@@ -787,7 +791,8 @@ defmodule OurExpensesWeb.CoreComponents do
       @style.color == :green && "bg-green-100 text-green-700",
       @style.color == :yellow && "bg-yellow-100 text-yellow-700",
       @style.color == :orange && "bg-orange-100 text-orange-700",
-      @style.color == :red && "bg-red-100 text-red-700"
+      @style.color == :red && "bg-red-100 text-red-700",
+      @style.color == :slate && "bg-slate-100 text-slate-700"
     ]}>
       <%= @symbol %>&nbsp;<p class="whitespace-nowrap text-sm">
         <%= :erlang.float_to_binary(@budget - @amount, decimals: @precision) %>
