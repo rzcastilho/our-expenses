@@ -1,6 +1,5 @@
 <.header>
-  Listing Entries
-  <.badge label={@bill.name} color={:green}/>
+  Listing Entries <.badge label={@bill.name} color={:green} />
   <.amount_badge value={@balance} />
   <:actions>
     <.link patch={~p"/entries/new"}>
@@ -22,12 +21,14 @@
   </:col>
   <:col :let={{_id, entry}} label="Installments">
     <.badge
-            :if={entry.number_of_installments > 1}
-            label={"#{entry.installment}/#{entry.number_of_installments}"}
-            color={:yellow}
-          />
+      :if={entry.number_of_installments > 1}
+      label={"#{entry.installment}/#{entry.number_of_installments}"}
+      color={:yellow}
+    />
   </:col>
-  <:col :let={{_id, entry}} label="Recurring"><.badge :if={entry.recurring == true} label="recurring" color={:red} /></:col>
+  <:col :let={{_id, entry}} label="Recurring">
+    <.badge :if={entry.recurring == true} label="recurring" color={:red} />
+  </:col>
   <:action :let={{_id, entry}}>
     <div class="sr-only">
       <.link navigate={~p"/entries/#{entry}"}>Show</.link>

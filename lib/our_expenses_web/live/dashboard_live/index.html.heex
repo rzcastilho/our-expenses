@@ -31,13 +31,11 @@
     <.threshold_badge amount={balance} budget={budget} />
   </:col>
   <:col :let={{_id, _category, budget, balance}} align="right" label="Percentage">
-    <%=
-      if budget > 0.0 do
-        "#{:erlang.float_to_binary(balance / budget * 100, decimals: 2)}%"
-      else
-        "---"
-      end
-    %>
+    <%= if budget > 0.0 do
+      "#{:erlang.float_to_binary(balance / budget * 100, decimals: 2)}%"
+    else
+      "---"
+    end %>
   </:col>
   <:action :let={{id, _category, _budget, _balance}}>
     <.link patch={~p"/dashboard/bill/#{@bill.id}/category/#{id}/details"}>
